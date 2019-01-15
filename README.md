@@ -1,10 +1,14 @@
 Automatic Merger between Git Repo Branches
-# DO NOT USE THIS. IT IS NOT INTENDED FOR PRODUCTION USE AT ALL. I WROTE IT IN LESS THAN 2 HOURS AND IT HAS NOT BEEN THOROUGHLY TESTED OR VALIDATED
+# DO NOT USE THIS. 
+
+IT IS NOT INTENDED FOR PRODUCTION USE AT ALL. I WROTE IT IN LESS THAN 2 HOURS AND IT HAS NOT BEEN THOROUGHLY TESTED OR VALIDATED
 
 To set up:
 1. Run `./setup-testrepo1.sh`. This will create a test repo with three branches in a folder called `test-data`
 2. Ensure that you have a `merger-config.json` file that looks like the following:
-```{
+
+```
+{
     "repositories": [
         {
             "name": "repo1",
@@ -22,7 +26,8 @@ To set up:
             ]
         }
     ]
-}```
+}
+```
 
 You will need to change the `locationOnDisk` to be whatever location you want the service's version of the repo to live at
 

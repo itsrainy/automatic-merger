@@ -1,0 +1,22 @@
+{
+    "port": 8080,
+    "repositories": [
+        {
+            "url": "git@repourlhere",
+            "edges": [
+                {
+                    "from": "frombranch",
+                    "to": "tobranch"
+                },
+                {
+                    "from": "frombranch",
+                    "to": "tobranch"
+                }
+            ]
+        },
+        {
+            "url": "git@repourlhere",
+            "edges": []
+        }
+    ]
+}

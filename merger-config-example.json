@@ -1,22 +1,19 @@
 {
-    "port": 8080,
     "repositories": [
         {
-            "url": "git@repourlhere",
+            "name": "repo1",
+            "url": "/Users/joshcox/Documents/tesla-interview/test-repos/repo1",
+            "locationOnDisk" : "/Users/joshcox/Documents/tesla-interview/repositories/repo1",
             "edges": [
                 {
-                    "from": "frombranch",
-                    "to": "tobranch"
+                    "from": "testBranch1",
+                    "to": "testBranch2"
                 },
                 {
-                    "from": "frombranch",
-                    "to": "tobranch"
+                    "from": "testBranch2",
+                    "to": "testBranch3"
                 }
             ]
-        },
-        {
-            "url": "git@repourlhere",
-            "edges": []
         }
     ]
 }

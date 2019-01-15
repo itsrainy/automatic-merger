@@ -4,6 +4,7 @@ import SocketServer, subprocess, os, json
 
 
 CONFIG_FILE = "merger-config.json"
+WORKING_DIR = ""
 
 class SimpleServer(BaseHTTPRequestHandler):
     def _set_headers(self):
@@ -13,13 +14,10 @@ class SimpleServer(BaseHTTPRequestHandler):
 
     def do_POST(self):
         # TODO: Audit for possible security implications
-        content_length = int(self.headers['Content-Length']) # <--- Gets the size of data
+        content_length = int(self.headers['Content-Length']) 
         branch_info = json.loads(self.rfile.read(content_length))
-        try:
-            process_new_commit(branch_info["repo"], branch_info["branch"])
-        except:
-            self._set_headers()
-            self.wfile.write("Error in processing commit")    
+        process_new_commit(branch_info["repo"], branch_info["branch"])
+    
         self._set_headers()
         self.wfile.write("Repo: " + branch_info["repo"] + "\n" + "Branch: " + branch_info["branch"])
 
@@ -65,25 +63,30 @@ def construct_graph(edges):
 def recursively_merge(branch_name, g):
     if branch_name not in g:
         return
+    
+    # Ensure that the branch exists locally and is up to date
+    subprocess.call(["git", "checkout", branch_name])
+    subprocess.call(["git", "pull"])
     for b in g[branch_name]:
-        subprocess.call(["git", "checkout", b]) # defo security issue. don't do this
+        subprocess.call(["git", "checkout", b]) 
         subprocess.call(["git", "merge", branch_name])
         recursively_merge(b, g)
 
 def process_new_commit(repository, branch_name):
-    # Read CONFIG_FILE
-    import pdb; pdb.set_trace()
-    conf = json.loads(open(CONFIG_FILE).read())
+    if os.getcwd() != WORKING_DIR:
+        os.chdir(WORKING_DIR)
+
+    conf = {}
     repo_conf = None
+    with open(CONFIG_FILE) as conf_file:
+        conf = json.loads(conf_file.read())
     for repo in conf["repositories"]:
         if repo["name"] == repository:
             repo_conf = repo
     if repo_conf == None:
-        #throw some exception
         raise Exception("Specified repository doesn't exist in our config")
     print("Loaded config and found repo")
 
-    # Update local repo (for now we only have one and it is always located at ./repo/)
     # Check if repo exists, if not clone it
     if not os.path.isdir(repo_conf["locationOnDisk"]):
         print("Cloning repo...")
@@ -91,28 +94,28 @@ def process_new_commit(repository, branch_name):
     
     print("Changing directory to specified repo")
     os.chdir(repo_conf["locationOnDisk"]) # Will this try to switch into a deeper folder each time?
-    # TODO: don't just shell out here, make/use a more robust git module
+    
     print("Updating specified repo")
     subprocess.call(["git", "pull"])
 
     # Validate graph
     g = construct_graph(repo_conf["edges"])
     if cyclic(g):
-        # email user to let them know
+        # email user to let them know?
         # Ideally we'd never get into this state if we validate on user input
         raise Exception("Branch graph for specified repo is cyclic. Aborting")
 
-    # Check for existence of given branch in graph
     if branch_name in g:
-        # Merge until leaf
         recursively_merge(branch_name, g)
     
     # Using --all for now, but we'll want to make this a bit more surgical
+    subprocess.call(["git", "checkout", "master"])
     subprocess.call(["git", "push", "--all"])
 
 def main():
     from sys import argv
-
+    global WORKING_DIR
+    WORKING_DIR = os.getcwd()
     if len(argv) == 2:
         run(port=int(argv[1]))
     else:

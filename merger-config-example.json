@@ -2,7 +2,7 @@
     "repositories": [
         {
             "name": "repo1",
-            "url": "/Users/joshcox/Documents/tesla-interview/test-repos/repo1",
+            "url": "test-data/repo1",
             "locationOnDisk" : "/Users/joshcox/Documents/tesla-interview/repositories/repo1",
             "edges": [
                 {

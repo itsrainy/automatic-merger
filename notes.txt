@@ -1,0 +1,40 @@
+- Imagine you have a git repo there are a bunch of branches
+- Problem we are solving
+    - Set of release branches which sometimes receive hotfixes and then you have a current development branch
+    - Want to automatically merge hotfixes to development branch
+    - As a user, specify a git repo, which branches need to be merged into which, 
+    - the service will need to perform the merge automatically whenever there are new commits in the source branch.
+    - Merge conflicts
+        - As the first step abort the merge
+        - Send emails and silently fail
+- Assume it is an HTTP service
+    - Post commit hook from git service
+    - Only get branch name
+    - 
+- User input
+    - Specify repo
+        - URL (and any clone instructions)
+            - For now will just assume that service machine is able to clone,pull,push,etc
+    - From Branch and to branch
+        - Ensure no cycles when inputting?
+    - Config file for now, validated upon reading
+        - Eventually will move to DB
+
+- New commit workflow
+    1. Http hook gives you branch name
+    2. Update local repo (pull given branch... probably pull all branches)
+    3. Read branch merge graph from config
+    4. Validate that graph is acyclic
+    5. Check for existence of given branch in graph
+    6. Merge until leaf (or error)
+    7. Push to remote
+
+- Caveats to think about
+    - Race conditions
+        - The process will error if another process/thread is attempting to mutate the local git repo simultaneously
+    - Security is pretty big here, especially if we're shelling out with user-provided branch names
+    - Do we want to push each branch as it is merged or should the whole push be atomic?
+
+- Web server listening taken from https://gist.github.com/bradmontgomery/2219997
+
+
